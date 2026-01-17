@@ -12,4 +12,5 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
-CMD ["echo", "Build finished"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

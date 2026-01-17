@@ -78,15 +78,7 @@ export function LoginForm({
                 />
               </Field>
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Parol</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Parolni unutdingizmi?
-                  </a>
-                </div>
+                <FieldLabel htmlFor="password">Parol</FieldLabel>
                 <Input
                   id="password"
                   type="password"

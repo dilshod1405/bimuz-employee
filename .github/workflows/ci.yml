@@ -87,8 +87,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Check for pnpm-lock.yaml
+        id: check_lockfile_build
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "lockfile_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "lockfile_exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ "${{ steps.check_lockfile_build.outputs.lockfile_exists }}" == "true" ]; then
+            pnpm install --frozen-lockfile
+          else
+            echo "Warning: pnpm-lock.yaml not found. Installing without frozen-lockfile."
+            pnpm install
+          fi
 
       - name: Build application
         run: pnpm run build

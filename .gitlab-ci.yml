@@ -8,9 +8,9 @@ variables:
 
 docker-build:
   stage: build
-  image: docker:24.0.10
+  image: docker:24
   services:
-    - name: docker:24.0.10-dind
+    - name: docker:24-dind
       alias: docker
   timeout: 30m
   variables:

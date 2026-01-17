@@ -207,7 +207,7 @@ export default function Employees() {
       })
       setDeleteConfirmOpen(false)
       setEmployeeToDelete(null)
-      loadEmployees(currentSearchTerm) // Reload employees list
+      loadEmployees(searchQuery) // Reload employees list
     } catch (err) {
       const apiError = err as ApiError & { status?: number }
       const errorMessage = apiError.message || "Xodimni o'chirishda xatolik yuz berdi"

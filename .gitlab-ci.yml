@@ -7,7 +7,7 @@ variables:
 
 docker-build:
   stage: build
-  image: docker:24-cli
+  image: docker:latest
   timeout: 30m
   before_script:
     - docker info

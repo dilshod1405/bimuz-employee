@@ -34,21 +34,17 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: async (email: string, password: string) => {
-        try {
-          const response = await api.login({ email, password });
+        const response = await api.login({ email, password });
 
-          set({
-            user: response.data.employee,
-            tokens: response.data.tokens,
-            isAuthenticated: true,
-          });
+        set({
+          user: response.data.employee,
+          tokens: response.data.tokens,
+          isAuthenticated: true,
+        });
 
-          // Store tokens in localStorage for axios interceptor
-          localStorage.setItem('access_token', response.data.tokens.access);
-          localStorage.setItem('refresh_token', response.data.tokens.refresh);
-        } catch (error) {
-          throw error;
-        }
+        // Store tokens in localStorage for axios interceptor
+        localStorage.setItem('access_token', response.data.tokens.access);
+        localStorage.setItem('refresh_token', response.data.tokens.refresh);
       },
 
       logout: () => {

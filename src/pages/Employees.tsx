@@ -55,6 +55,7 @@ export default function Employees() {
     if (isDeveloper) {
       loadEmployees()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDeveloper])
 
   const loadEmployees = async (search?: string) => {

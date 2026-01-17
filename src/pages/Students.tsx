@@ -60,6 +60,7 @@ export default function Students() {
     if (canRead) {
       loadStudents(currentSearchTerm)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canRead, currentSearchTerm])
 
   const loadStudents = async (searchTerm: string = "") => {

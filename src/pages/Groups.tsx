@@ -55,6 +55,7 @@ export default function Groups() {
         loadMentors()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canRead, canCRUD])
 
   const loadGroups = async () => {

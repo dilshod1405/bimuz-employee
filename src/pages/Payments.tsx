@@ -46,6 +46,7 @@ export default function Payments() {
       const apiStatus = statusFilter === "all" ? "" : statusFilter
       loadInvoices(currentPage, currentSearchTerm, apiStatus, ordering)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canRead, currentPage, currentSearchTerm, statusFilter, ordering])
 
   const loadInvoices = async (page: number = 1, search: string = "", status: string = "", order: string = "-amount") => {

@@ -105,7 +105,7 @@ axiosInstance.interceptors.response.use(
           if (authStore.tokens) {
             authStore.tokens.access = access;
           }
-        } catch (e) {
+        } catch {
           // Store might not be available, ignore
         }
 
@@ -129,7 +129,7 @@ axiosInstance.interceptors.response.use(
         try {
           const authStore = (await import('@/stores/authStore')).useAuthStore.getState();
           authStore.logout();
-        } catch (e) {
+        } catch {
           // Store might not be available, ignore
         }
 

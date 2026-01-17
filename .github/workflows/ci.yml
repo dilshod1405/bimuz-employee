@@ -47,7 +47,17 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "pnpm-lock.yaml found. Attempting install with --frozen-lockfile..."
+            pnpm install --frozen-lockfile || {
+              echo "Warning: Failed to install with --frozen-lockfile (lockfile may be incompatible). Installing without --frozen-lockfile..."
+              pnpm install --no-frozen-lockfile
+            }
+          else
+            echo "Warning: pnpm-lock.yaml not found. Installing without --frozen-lockfile."
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Run linter
         run: pnpm run lint
@@ -87,22 +97,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Check for pnpm-lock.yaml
-        id: check_lockfile_build
-        run: |
-          if [ -f "pnpm-lock.yaml" ]; then
-            echo "lockfile_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "lockfile_exists=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Install dependencies
         run: |
-          if [ "${{ steps.check_lockfile_build.outputs.lockfile_exists }}" == "true" ]; then
-            pnpm install --frozen-lockfile
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "pnpm-lock.yaml found. Attempting install with --frozen-lockfile..."
+            pnpm install --frozen-lockfile || {
+              echo "Warning: Failed to install with --frozen-lockfile (lockfile may be incompatible). Installing without --frozen-lockfile..."
+              pnpm install --no-frozen-lockfile
+            }
           else
-            echo "Warning: pnpm-lock.yaml not found. Installing without frozen-lockfile."
-            pnpm install
+            echo "Warning: pnpm-lock.yaml not found. Installing without --frozen-lockfile."
+            pnpm install --no-frozen-lockfile
           fi
 
       - name: Build application

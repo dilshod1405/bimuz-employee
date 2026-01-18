@@ -27,8 +27,6 @@ Modern, responsive admin dashboard for BIMUZ education management system.
 - [Deployment](#-deployment)
 - [Project Structure](#-project-structure)
 - [Configuration](#-configuration)
-- [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
@@ -388,37 +386,6 @@ The dashboard uses JWT-based authentication:
 #### Port Already in Use
 - Change the port in `docker-compose.yml`
 - Or stop the process using the port: `lsof -ti:3000 | xargs kill`
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Style
-
-- Follow TypeScript best practices
-- Use ESLint configuration
-- Write meaningful commit messages
-- Add comments for complex logic
-
----
-
-## 📄 License
-
-This project is private and proprietary. All rights reserved.
-
----
-
-## 📞 Support
-
-For support, please contact the development team or open an issue in the repository.
 
 ---
 

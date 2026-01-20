@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import type { FormEvent } from "react"
-import { Eye, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, X, CheckCircle2 } from "lucide-react"
+import { Eye, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, X } from "lucide-react"
 import { api, type Invoice, type ApiError } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
 import {

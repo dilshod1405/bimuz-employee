@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react"
-import { Calendar as CalendarIcon, TrendingUp, Users, Download, ChevronDown, ChevronUp, Eye, FileSpreadsheet, Wallet } from "lucide-react"
+import { Calendar as CalendarIcon, TrendingUp, Users, ChevronDown, ChevronUp, Eye, FileSpreadsheet, Wallet } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns"
 import { uz } from "date-fns/locale"
-import { api, type Invoice, type ApiError, type Employee, type Group } from "@/lib/api"
+import { api, type Invoice, type Employee, type Group } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
 import { Button } from "@/components/ui/button"
 import {
@@ -41,8 +41,6 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart"
 import {
@@ -112,7 +110,7 @@ export default function Reports() {
   const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMonth, setSelectedMonth] = useState<string>("")
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+  const [, setSelectedYear] = useState<number>(new Date().getFullYear())
   const [expandedMentor, setExpandedMentor] = useState<number | null>(null)
   const [selectedMentorDetail, setSelectedMentorDetail] = useState<MentorEarnings | null>(null)
   const [employeeSalaries, setEmployeeSalaries] = useState<EmployeeSalary[]>([])

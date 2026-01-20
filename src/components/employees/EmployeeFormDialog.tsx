@@ -1,5 +1,6 @@
 import type { FormEvent } from "react"
 import type { Employee} from "@/lib/api"
+import { getAssignableRoles } from "@/lib/permissions"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -24,10 +25,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 
-const ROLE_OPTIONS = [
+const ALL_ROLE_OPTIONS = [
   { value: "dasturchi", label: "Dasturchi" },
   { value: "direktor", label: "Direktor" },
   { value: "administrator", label: "Administrator" },
+  { value: "buxgalter", label: "Buxgalter" },
   { value: "sotuv_agenti", label: "Sotuv agenti" },
   { value: "mentor", label: "Mentor" },
   { value: "assistent", label: "Assistent" },
@@ -37,6 +39,7 @@ interface EmployeeFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   editingEmployee: Employee | null
+  userRole?: string | null // Current user's role for permission checks
   formData: {
     email: string
     first_name: string
@@ -59,12 +62,30 @@ export function EmployeeFormDialog({
   open,
   onOpenChange,
   editingEmployee,
+  userRole,
   formData,
   error,
   onChange,
   onSubmit,
   isLoading = false,
 }: EmployeeFormDialogProps) {
+  // Get assignable roles based on user's role
+  const assignableRoles = getAssignableRoles(userRole)
+  
+  // When editing, include the current role even if user can't assign it (for display)
+  let roleOptions = ALL_ROLE_OPTIONS.filter((option) =>
+    assignableRoles.includes(option.value)
+  )
+  
+  // If editing and current role is not assignable, add it to options
+  if (editingEmployee && !assignableRoles.includes(editingEmployee.role)) {
+    const currentRoleOption = ALL_ROLE_OPTIONS.find(
+      (opt) => opt.value === editingEmployee.role
+    )
+    if (currentRoleOption) {
+      roleOptions = [currentRoleOption, ...roleOptions]
+    }
+  }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
@@ -170,7 +191,7 @@ export function EmployeeFormDialog({
                     <SelectValue placeholder="Role tanlang" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLE_OPTIONS.map((option) => (
+                    {roleOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>

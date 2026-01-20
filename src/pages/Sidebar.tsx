@@ -17,6 +17,7 @@ import Employees from "./Employees"
 import Students from "./Students"
 import Groups from "./Groups"
 import Payments from "./Payments"
+import Attendances from "./Attendances"
 
 export default function Sidebar() {
   return (
@@ -47,6 +48,7 @@ export default function Sidebar() {
           <Route path="/students" element={<Students />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/payments" element={<Payments />} />
+          <Route path="/davomatlar" element={<Attendances />} />
           <Route
             path="/"
             element={

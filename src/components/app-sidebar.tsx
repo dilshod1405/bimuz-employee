@@ -28,8 +28,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-// Menu items for Developer role (full access)
-const developerMenuItems: {
+// Menu items available to all authenticated users
+const fullAccessMenuItems: {
   title: string
   url: string
   icon: LucideIcon
@@ -85,9 +85,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
 
-  // Only Developer role gets full access
-  const isDeveloper = user?.role === "dasturchi"
-  const menuItems = isDeveloper ? developerMenuItems : []
+  // All authenticated users can see all pages (read access)
+  // Update/Delete permissions are handled per page
+  const menuItems = user ? fullAccessMenuItems : []
 
   // Get user initials for avatar fallback
   const getInitials = (name: string) => {

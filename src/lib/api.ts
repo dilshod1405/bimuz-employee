@@ -3,7 +3,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.bimuz.uz';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Create axios instance
 const axiosInstance = axios.create({
@@ -669,6 +669,60 @@ export const api = {
     
     return apiRequest<InvoiceListResponse>(url, {
       method: 'GET',
+    });
+  },
+
+  // Attendance operations
+  async getAttendances(search?: string, group?: number, mentor?: number, date?: string, page?: number): Promise<AttendanceListResponse> {
+    const params = new URLSearchParams();
+    params.append('page_size', '50'); // 50 items per page
+    if (search && search.trim()) {
+      params.append('search', search.trim());
+    }
+    if (group) {
+      params.append('group', group.toString());
+    }
+    if (mentor) {
+      params.append('mentor', mentor.toString());
+    }
+    if (date && date.trim()) {
+      params.append('date', date.trim());
+    }
+    if (page) {
+      params.append('page', page.toString());
+    }
+    
+    const queryString = params.toString();
+    const url = `/api/v1/education/attendances/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<AttendanceListResponse>(url, {
+      method: 'GET',
+    });
+  },
+
+  async getAttendance(id: number): Promise<AttendanceResponse> {
+    return apiRequest<AttendanceResponse>(`/api/v1/education/attendances/${id}/`, {
+      method: 'GET',
+    });
+  },
+
+  async createAttendance(data: CreateAttendanceData): Promise<AttendanceResponse> {
+    return apiRequest<AttendanceResponse>('/api/v1/education/attendances/', {
+      method: 'POST',
+      data,
+    });
+  },
+
+  async updateAttendance(id: number, data: UpdateAttendanceData): Promise<AttendanceResponse> {
+    return apiRequest<AttendanceResponse>(`/api/v1/education/attendances/${id}/`, {
+      method: 'PATCH',
+      data,
+    });
+  },
+
+  async deleteAttendance(id: number): Promise<{ success: boolean; message: string }> {
+    return apiRequest<{ success: boolean; message: string }>(`/api/v1/education/attendances/${id}/`, {
+      method: 'DELETE',
     });
   },
 };

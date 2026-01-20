@@ -3,6 +3,13 @@ import type { FormEvent } from "react"
 import { Plus, Search, Edit2, Trash2, MoreVertical } from "lucide-react"
 import { api, type Employee, type ApiError } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
+import {
+  canReadEmployees,
+  canCreateEmployee,
+  canUpdateEmployee,
+  canDeleteEmployee,
+  canViewEmployee,
+} from "@/lib/permissions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -34,8 +41,10 @@ export default function Employees() {
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Check if user is developer
-  const isDeveloper = user?.role === "dasturchi"
+  // Check permissions
+  // All authenticated users can read employees page
+  const canRead = !!user
+  const canCreate = canCreateEmployee(user?.role)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -52,11 +61,11 @@ export default function Employees() {
   })
 
   useEffect(() => {
-    if (isDeveloper) {
+    if (canRead) {
       loadEmployees()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDeveloper])
+  }, [canRead])
 
   const loadEmployees = async (search?: string) => {
     try {
@@ -219,10 +228,11 @@ export default function Employees() {
     }
   }
 
-  // Employees are already filtered by backend
+  // All employees can be viewed (read access for all roles)
+  // Filtering for update/delete is handled in the action buttons
   const filteredEmployees = employees
 
-  if (!isDeveloper) {
+  if (!canRead) {
     return (
       <div className="flex min-h-svh w-full items-center justify-center p-6">
         <Card>
@@ -238,10 +248,12 @@ export default function Employees() {
     <div className="flex flex-col gap-4 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Xodimlar</h1>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4" />
-          Yangi xodim
-        </Button>
+        {canCreate && (
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4" />
+            Yangi xodim
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -307,26 +319,33 @@ export default function Employees() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon-sm">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEdit(employee)}>
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                Tahrirlash
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteClick(employee)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                O'chirish
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          {(canUpdateEmployee(user?.role, employee) ||
+                            canDeleteEmployee(user?.role, employee)) && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon-sm">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {canUpdateEmployee(user?.role, employee) && (
+                                  <DropdownMenuItem onClick={() => handleEdit(employee)}>
+                                    <Edit2 className="mr-2 h-4 w-4" />
+                                    Tahrirlash
+                                  </DropdownMenuItem>
+                                )}
+                                {canDeleteEmployee(user?.role, employee) && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteClick(employee)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    O'chirish
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -342,6 +361,7 @@ export default function Employees() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         editingEmployee={editingEmployee}
+        userRole={user?.role}
         formData={formData}
         error={formError}
         onChange={handleFormChange}

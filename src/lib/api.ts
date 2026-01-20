@@ -3,7 +3,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://api.bimuz.uz';
 
 // Create axios instance
 const axiosInstance = axios.create({

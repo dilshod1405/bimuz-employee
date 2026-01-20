@@ -386,6 +386,59 @@ export interface InvoiceListResponse {
   results?: Invoice[];
 }
 
+// Attendance interfaces
+export interface AttendanceParticipant {
+  id: number;
+  full_name: string;
+  phone?: string | null;
+}
+
+export interface Attendance {
+  id: number;
+  group: number;
+  group_name: string;
+  date: string;
+  time: string;
+  mentor?: number | null;
+  mentor_name?: string | null;
+  participants: number[];
+  participants_count?: number;
+  participants_list?: AttendanceParticipant[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AttendanceListResponse {
+  success?: boolean;
+  message?: string;
+  data?: Attendance[];
+  // Pagination response format
+  count?: number;
+  next?: string | null;
+  previous?: string | null;
+  results?: Attendance[];
+}
+
+export interface AttendanceResponse {
+  success?: boolean;
+  message?: string;
+  data: Attendance;
+}
+
+export interface CreateAttendanceData {
+  group: number;
+  date: string;
+  mentor?: number | null;
+  participants?: number[];
+}
+
+export interface UpdateAttendanceData {
+  group?: number;
+  date?: string;
+  mentor?: number | null;
+  participants?: number[];
+}
+
 async function apiRequest<T>(
   endpoint: string,
   config: AxiosRequestConfig = {}

@@ -4,13 +4,15 @@ import type { Employee } from "./api"
  * Role hierarchy (higher number = higher privilege)
  * Dasturchi > Direktor > Administrator > Buxgalter > Others
  */
-export enum RoleLevel {
-  OTHER = 0, // Boshqa rollar: sotuv_agenti, mentor, assistent
-  ACCOUNTANT = 1, // Buxgalter
-  ADMINISTRATOR = 2, // Administrator
-  DIRECTOR = 3, // Direktor
-  DEVELOPER = 4, // Dasturchi
-}
+export const RoleLevel = {
+  OTHER: 0, // Boshqa rollar: sotuv_agenti, mentor, assistent
+  ACCOUNTANT: 1, // Buxgalter
+  ADMINISTRATOR: 2, // Administrator
+  DIRECTOR: 3, // Direktor
+  DEVELOPER: 4, // Dasturchi
+} as const
+
+export type RoleLevel = typeof RoleLevel[keyof typeof RoleLevel]
 
 /**
  * Get role level for permission checks
@@ -108,7 +110,6 @@ export function canViewEmployee(
   targetEmployee: Employee
 ): boolean {
   const userLevel = getRoleLevel(userRole)
-  const targetLevel = getRoleLevel(targetEmployee.role)
 
   // Dasturchi and Direktor can see everyone
   if (userLevel >= RoleLevel.DIRECTOR) {

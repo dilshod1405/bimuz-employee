@@ -4,11 +4,9 @@ import { Plus, Search, Edit2, Trash2, MoreVertical } from "lucide-react"
 import { api, type Employee, type ApiError } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
 import {
-  canReadEmployees,
   canCreateEmployee,
   canUpdateEmployee,
   canDeleteEmployee,
-  canViewEmployee,
 } from "@/lib/permissions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

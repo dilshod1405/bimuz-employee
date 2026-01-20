@@ -30,6 +30,7 @@ import {
 import { AttendanceFormDialog } from "@/components/attendances/AttendanceFormDialog"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Attendances() {
   const user = useAuthStore((state) => state.user)
@@ -230,6 +231,28 @@ export default function Attendances() {
     setIsSubmitting(true)
 
     try {
+      // Validate that selected group has started
+      if (formData.group) {
+        const selectedGroup = groups.find(g => g.id === formData.group)
+        if (selectedGroup && selectedGroup.starting_date) {
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const startDate = new Date(selectedGroup.starting_date)
+          startDate.setHours(0, 0, 0, 0)
+          
+          if (startDate.getTime() > today.getTime()) {
+            setFormError("Bu guruh hali boshlanmagan. Faqat boshlangan guruhlar uchun davomat yaratish mumkin.")
+            setIsSubmitting(false)
+            toast({
+              title: "Xatolik",
+              description: "Bu guruh hali boshlanmagan. Faqat boshlangan guruhlar uchun davomat yaratish mumkin.",
+              variant: "destructive",
+            })
+            return
+          }
+        }
+      }
+
       if (editingAttendance) {
         // Validate mentor exists before sending
         const mentorId = formData.mentor && mentors.some(m => m.id === formData.mentor)
@@ -456,11 +479,41 @@ export default function Attendances() {
 
       {/* Grouped Attendances */}
       {loading ? (
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">Yuklanmoqda...</p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-6">
+          {[1, 2, 3].map((groupIndex) => (
+            <Card key={groupIndex}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                  </div>
+                  <Skeleton className="h-6 w-24" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[1, 2].map((attendanceIndex) => (
+                    <div key={attendanceIndex} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 flex-1">
+                          <Skeleton className="h-4 w-40" />
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-5 w-32" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="h-8 w-20" />
+                          <Skeleton className="h-8 w-24" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : Object.keys(groupedAttendances).length === 0 ? (
         <Card>
           <CardContent className="p-6">

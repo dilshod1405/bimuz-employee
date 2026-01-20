@@ -112,18 +112,33 @@ export function AttendanceFormDialog({
   // Check if user can select mentor
   const canSelectMentor = userRole === "dasturchi" || userRole === "direktor" || userRole === "administrator"
 
-  // Filter groups based on mentor
+  // Check if group has started (starting_date has passed or is today)
+  const isGroupStarted = (group: Group): boolean => {
+    if (!group.starting_date) {
+      // If no starting_date, consider it as started
+      return true
+    }
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const startDate = new Date(group.starting_date)
+    startDate.setHours(0, 0, 0, 0)
+    return startDate.getTime() <= today.getTime()
+  }
+
+  // Filter groups based on mentor (but show all groups, including planned ones)
   const availableGroups = useMemo(() => {
+    let filtered = groups
+
+    // Filter by mentor
     if (isMentor) {
       // Mentor sees only their groups
-      return groups.filter(group => group.mentor === userMentorId)
+      filtered = filtered.filter(group => group.mentor === userMentorId)
     } else if (canSelectMentor && formData.mentor) {
       // If mentor is selected, show only that mentor's groups
-      return groups.filter(group => group.mentor === formData.mentor)
-    } else {
-      // Show all groups
-      return groups
+      filtered = filtered.filter(group => group.mentor === formData.mentor)
     }
+
+    return filtered
   }, [groups, isMentor, userMentorId, canSelectMentor, formData.mentor])
 
   return (
@@ -221,11 +236,23 @@ export function AttendanceFormDialog({
                         {formData.mentor ? "Bu mentorning guruhlari topilmadi" : "Guruhlar topilmadi"}
                       </div>
                     ) : (
-                      availableGroups.map((group) => (
-                        <SelectItem key={group.id} value={group.id.toString()}>
-                          {group.speciality_display} - {group.dates_display} ({group.time})
-                        </SelectItem>
-                      ))
+                      availableGroups.map((group) => {
+                        const hasStarted = isGroupStarted(group)
+                        return (
+                          <SelectItem 
+                            key={group.id} 
+                            value={group.id.toString()}
+                            disabled={!hasStarted}
+                          >
+                            <span>
+                              {group.speciality_display} - {group.dates_display} ({group.time})
+                              {!hasStarted && (
+                                <span className="text-muted-foreground ml-2">- Hali boshlanmagan guruh</span>
+                              )}
+                            </span>
+                          </SelectItem>
+                        )
+                      })
                     )}
                   </SelectContent>
                 </Select>

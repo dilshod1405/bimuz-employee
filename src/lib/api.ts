@@ -3,7 +3,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = 'https://api.bimuz.uz';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Create axios instance
 const axiosInstance = axios.create({
@@ -776,6 +776,119 @@ export const api = {
   async deleteAttendance(id: number): Promise<{ success: boolean; message: string }> {
     return apiRequest<{ success: boolean; message: string }>(`/api/v1/education/attendances/${id}/`, {
       method: 'DELETE',
+    });
+  },
+
+  // Reports API
+  async getMonthlyReports(month: string): Promise<{
+    month: string;
+    total_revenue: number;
+    total_mentor_payments: number;
+    total_director_share: number;
+    total_employee_salaries: number;
+    director_remaining: number;
+    mentor_earnings: Array<{
+      mentor_id: number;
+      mentor_name: string;
+      mentor_email: string;
+      total_revenue: number;
+      mentor_payment: number;
+      director_share: number;
+      groups_count: number;
+      students_count: number;
+      groups_detail: Array<unknown>;
+    }>;
+    employees: Array<{
+      id: number;
+      full_name: string;
+      email: string;
+      role: string;
+      role_display: string;
+      salary: number;
+    }>;
+  }> {
+    return apiRequest(`/api/v1/payment/reports/monthly/?month=${month}`, {
+      method: 'GET',
+    });
+  },
+
+  async setEmployeeSalary(data: {
+    employee_id: number;
+    month: string;
+    amount: number;
+    notes?: string;
+  }): Promise<{
+    id: number;
+    employee_id: number;
+    month: string;
+    amount: number;
+    notes?: string;
+  }> {
+    return apiRequest('/api/v1/payment/reports/salary/', {
+      method: 'POST',
+      data,
+    });
+  },
+
+  // Mark invoices as paid
+  async markInvoicesAsPaid(data: {
+    invoice_ids: number[];
+    payment_time?: string;
+    payment_method?: string;
+    notes?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    updated_count: number;
+    total_count: number;
+  }> {
+    return apiRequest('/api/v1/payment/mark-as-paid/', {
+      method: 'POST',
+      data,
+    });
+  },
+
+  // Mark employee salary as paid
+  async markSalaryAsPaid(data: {
+    employee_id: number;
+    month: string;
+    is_paid: boolean;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      employee_id: number;
+      month: string;
+      is_paid: boolean;
+      payment_date: string | null;
+    };
+  }> {
+    return apiRequest('/api/v1/payment/reports/salary/mark-paid/', {
+      method: 'POST',
+      data,
+    });
+  },
+
+  // Mark mentor payment as paid
+  async markMentorPaymentAsPaid(data: {
+    mentor_id: number;
+    month: string;
+    amount: number;
+    is_paid: boolean;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      mentor_id: number;
+      month: string;
+      amount: number;
+      is_paid: boolean;
+      payment_date: string | null;
+    };
+  }> {
+    return apiRequest('/api/v1/payment/reports/mentor-payment/mark-paid/', {
+      method: 'POST',
+      data,
     });
   },
 };

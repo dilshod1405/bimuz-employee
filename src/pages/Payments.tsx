@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import type { FormEvent } from "react"
-import { Eye, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, X } from "lucide-react"
+import { Eye, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, X, CheckCircle2 } from "lucide-react"
 import { api, type Invoice, type ApiError } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
 import {
@@ -37,7 +37,6 @@ export default function Payments() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-
   const canRead = !!user // Any authenticated employee can read
 
   useEffect(() => {
@@ -278,7 +277,7 @@ export default function Payments() {
                         <td className="px-4 py-3 text-sm font-medium">{invoice.student_name}</td>
                         <td className="px-4 py-3 text-sm">{invoice.student_phone}</td>
                         <td className="px-4 py-3 text-sm">{invoice.group_name}</td>
-                        <td className="px-4 py-3 text-sm">{formatPrice(invoice.amount)} so'm</td>
+                        <td className="px-4 py-3 text-sm">{formatPrice(invoice.amount)} uzs</td>
                         <td className="px-4 py-3 text-sm">
                           <span
                             className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(invoice.status)}`}
@@ -446,43 +445,39 @@ export default function Payments() {
                     <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Multicard ma'lumotlari</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between items-start py-1">
-                        <span className="text-xs text-muted-foreground">UUID:</span>
+                        <span className="text-xs text-muted-foreground">Identifikator (UUID):</span>
                         <span className="text-xs font-mono font-medium text-right break-all max-w-[65%]">{selectedInvoice.multicard_uuid || "-"}</span>
                       </div>
                       <div className="flex justify-between items-start py-1">
-                        <span className="text-xs text-muted-foreground">Invoice ID:</span>
+                        <span className="text-xs text-muted-foreground">To'lov hujjati ID:</span>
                         <span className="text-xs font-mono font-medium text-right">{selectedInvoice.multicard_invoice_id || "-"}</span>
                       </div>
-                      <div className="flex justify-between items-start py-1 gap-2">
-                        <span className="text-xs text-muted-foreground">Checkout URL:</span>
-                        {selectedInvoice.checkout_url ? (
+                      {!selectedInvoice.is_paid && selectedInvoice.checkout_url && (
+                        <div className="flex justify-between items-start py-1 gap-2">
+                          <span className="text-xs text-muted-foreground">To'lov havolasi:</span>
                           <a
                             href={selectedInvoice.checkout_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs text-blue-600 hover:underline dark:text-blue-400 break-all text-right max-w-[65%]"
                           >
-                            {selectedInvoice.checkout_url}
+                            To'lov havolasini ochish
                           </a>
-                        ) : (
-                          <span className="text-xs font-medium text-right">-</span>
-                        )}
-                      </div>
-                      <div className="flex justify-between items-start py-1 gap-2">
-                        <span className="text-xs text-muted-foreground">Receipt URL:</span>
-                        {selectedInvoice.receipt_url ? (
+                        </div>
+                      )}
+                      {selectedInvoice.is_paid && selectedInvoice.receipt_url && (
+                        <div className="flex justify-between items-start py-1 gap-2">
+                          <span className="text-xs text-muted-foreground">Kvitansiya havolasi:</span>
                           <a
                             href={selectedInvoice.receipt_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs text-blue-600 hover:underline dark:text-blue-400 break-all text-right max-w-[65%]"
                           >
-                            {selectedInvoice.receipt_url}
+                            Kvitansiya havolasini ochish
                           </a>
-                        ) : (
-                          <span className="text-xs font-medium text-right">-</span>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

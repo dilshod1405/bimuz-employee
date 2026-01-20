@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import type { FormEvent } from "react"
-import { Plus, Edit2, Trash2, MoreVertical } from "lucide-react"
-import { api, type Group, type ApiError, type Employee } from "@/lib/api"
+import { Plus, Edit2, Trash2, MoreVertical, Users } from "lucide-react"
+import { api, type Group, type ApiError, type Employee, type Student } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +17,13 @@ import {
 import { GroupFormDialog } from "@/components/groups/GroupFormDialog"
 import { DeleteDialog } from "@/components/common/DeleteDialog"
 import { useToast } from "@/hooks/use-toast"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 
 export default function Groups() {
   const user = useAuthStore((state) => state.user)
@@ -30,6 +37,9 @@ export default function Groups() {
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [mentors, setMentors] = useState<Employee[]>([])
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
+  const [groupStudents, setGroupStudents] = useState<Student[]>([])
+  const [loadingStudents, setLoadingStudents] = useState(false)
 
   // Check permissions
   const canCRUD = user?.role === "dasturchi" || user?.role === "direktor" || user?.role === "administrator"
@@ -263,6 +273,33 @@ export default function Groups() {
     }
   }
 
+  const handleViewStudents = async (groupId: number) => {
+    setSelectedGroupId(groupId)
+    setLoadingStudents(true)
+    try {
+      const response = await api.getStudents()
+      let allStudents: Student[] = []
+      if (response.results && Array.isArray(response.results)) {
+        allStudents = response.results
+      } else if (response.data && Array.isArray(response.data)) {
+        allStudents = response.data
+      }
+      const studentsInGroup = allStudents.filter(student => student.group === groupId)
+      setGroupStudents(studentsInGroup)
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Xatolik",
+        description: "Talabalarni yuklashda xatolik yuz berdi",
+      })
+      setGroupStudents([])
+    } finally {
+      setLoadingStudents(false)
+    }
+  }
+
+  const selectedGroup = selectedGroupId ? groups.find(g => g.id === selectedGroupId) : null
+
   if (!canRead) {
     return (
       <div className="flex min-h-svh w-full items-center justify-center p-6">
@@ -354,17 +391,25 @@ export default function Groups() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleEdit(group)}>
-                                  <Edit2 className="mr-2 h-4 w-4" />
-                                  Tahrirlash
+                                <DropdownMenuItem onClick={() => handleViewStudents(group.id)}>
+                                  <Users className="mr-2 h-4 w-4" />
+                                  Talabalar
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteClick(group)}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  O'chirish
-                                </DropdownMenuItem>
+                                {canCRUD && (
+                                  <>
+                                    <DropdownMenuItem onClick={() => handleEdit(group)}>
+                                      <Edit2 className="mr-2 h-4 w-4" />
+                                      Tahrirlash
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => handleDeleteClick(group)}
+                                      className="text-destructive"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      O'chirish
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </td>
@@ -399,6 +444,57 @@ export default function Groups() {
         onConfirm={handleDeleteConfirm}
         isLoading={isSubmitting}
       />
+
+      <Sheet open={selectedGroupId !== null} onOpenChange={(open) => !open && setSelectedGroupId(null)}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>
+              {selectedGroup ? `${selectedGroup.speciality_display} - ${selectedGroup.dates_display}` : "Talabalar"}
+            </SheetTitle>
+            <SheetDescription>
+              {selectedGroup && `${selectedGroup.time} • ${selectedGroup.current_students_count || 0} / ${selectedGroup.seats} talaba`}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {loadingStudents ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-12 bg-muted animate-pulse rounded" />
+                ))}
+              </div>
+            ) : groupStudents.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">Bu guruhda talabalar yo'q</p>
+            ) : (
+              <div className="space-y-3">
+                {groupStudents.map((student) => (
+                  <div key={student.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{student.full_name}</p>
+                        {student.phone && (
+                          <p className="text-sm text-muted-foreground mt-1">{student.phone}</p>
+                        )}
+                        {student.email && (
+                          <p className="text-sm text-muted-foreground">{student.email}</p>
+                        )}
+                      </div>
+                      <span
+                        className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                          student.is_active
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        }`}
+                      >
+                        {student.is_active ? "Faol" : "Nofaol"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

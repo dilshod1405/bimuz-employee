@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import type { FormEvent } from "react"
 import { Plus, Search, Edit2, Trash2, MoreVertical } from "lucide-react"
-import { api, type Student, type ApiError } from "@/lib/api"
+import { api, type Student, type ApiError, type Group } from "@/lib/api"
 import { useAuthStore } from "@/stores/authStore"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,7 @@ export default function Students() {
   const user = useAuthStore((state) => state.user)
   const { toast } = useToast()
   const [students, setStudents] = useState<Student[]>([])
+  const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [currentSearchTerm, setCurrentSearchTerm] = useState("")
@@ -59,6 +60,7 @@ export default function Students() {
   useEffect(() => {
     if (canRead) {
       loadStudents(currentSearchTerm)
+      loadGroups()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canRead, currentSearchTerm])
@@ -85,6 +87,21 @@ export default function Students() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadGroups = async () => {
+    try {
+      const response = await api.getGroups()
+      let groupsList: Group[] = []
+      if (response.results && Array.isArray(response.results)) {
+        groupsList = response.results
+      } else if (response.data && Array.isArray(response.data)) {
+        groupsList = response.data
+      }
+      setGroups(groupsList)
+    } catch (err) {
+      console.error("Failed to load groups:", err)
     }
   }
 
@@ -376,6 +393,7 @@ export default function Students() {
         editingStudent={editingStudent}
         formData={formData}
         error={formError}
+        groups={groups}
         onChange={handleFormChange}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}

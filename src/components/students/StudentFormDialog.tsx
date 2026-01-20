@@ -1,7 +1,7 @@
 import type { FormEvent } from "react"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
-import type { Student } from "@/lib/api"
+import type { Student, Group } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -60,6 +60,7 @@ interface StudentFormDialogProps {
     is_active: boolean
   }
   error: string | null
+  groups?: Group[]
   onChange: (field: string, value: string | File | number | boolean | null) => void
   onSubmit: (e: FormEvent) => void
   isLoading?: boolean
@@ -71,6 +72,7 @@ export function StudentFormDialog({
   editingStudent,
   formData,
   error,
+  groups = [],
   onChange,
   onSubmit,
   isLoading = false,
@@ -260,6 +262,26 @@ export function StudentFormDialog({
                   required
                   disabled={isLoading}
                 />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="group">Guruh (ixtiyoriy)</FieldLabel>
+                <Select
+                  value={formData.group?.toString() || undefined}
+                  onValueChange={(value) => onChange("group", value ? parseInt(value) : null)}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger id="group">
+                    <SelectValue placeholder="Guruh tanlang (ixtiyoriy)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groups.map((group) => (
+                      <SelectItem key={group.id} value={group.id.toString()}>
+                        {group.speciality_display} - {group.dates_display} ({group.time})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
 
               <Field>

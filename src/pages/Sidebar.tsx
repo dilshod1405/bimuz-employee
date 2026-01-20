@@ -18,6 +18,7 @@ import Students from "./Students"
 import Groups from "./Groups"
 import Payments from "./Payments"
 import Attendances from "./Attendances"
+import Reports from "./Reports"
 
 export default function Sidebar() {
   return (
@@ -49,6 +50,7 @@ export default function Sidebar() {
           <Route path="/groups" element={<Groups />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/davomatlar" element={<Attendances />} />
+          <Route path="/hisobotlar" element={<Reports />} />
           <Route
             path="/"
             element={
@@ -58,7 +60,7 @@ export default function Sidebar() {
                   <div className="bg-muted/50 aspect-video rounded-xl" />
                   <div className="bg-muted/50 aspect-video rounded-xl" />
                 </div>
-                <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+                <div className="bg-muted/50 min-h-screen flex-1 rounded-xl md:min-h-min" />
               </div>
             }
           />

@@ -176,25 +176,29 @@ export default function Reports() {
       // Extract employee salaries from reports data
       if (reportsData.employees && Array.isArray(reportsData.employees)) {
         const salaries: EmployeeSalary[] = reportsData.employees
-          .map(emp => {
+          .map((emp: any) => {
             // Create employee object from reports data
             // Backend returns full employee info in reports
             const employee: Employee = {
               id: emp.id,
+              first_name: emp.full_name?.split(' ')[0] || '',
+              last_name: emp.full_name?.split(' ').slice(1).join(' ') || '',
               full_name: emp.full_name || "Noma'lum",
               email: emp.email || "",
               role: emp.role || "unknown",
               role_display: emp.role_display || "Noma'lum",
               professionality: null,
               is_active: true,
+              created_at: '',
+              updated_at: '',
             }
             
             return {
               employee,
               salary: emp.salary || 0,
               month: selectedMonth,
-              is_paid: emp.is_paid || false,
-              payment_date: emp.payment_date || undefined,
+              is_paid: (emp as any).is_paid || false,
+              payment_date: (emp as any).payment_date || undefined,
             }
           })
           .filter(sal => sal.salary > 0) // Only include employees with salary set
@@ -203,14 +207,18 @@ export default function Reports() {
         
         // Also update allEmployees to ensure they're in sync
         // Create employee objects from reports data for employees without salary too
-        const employeesFromReports: Employee[] = reportsData.employees.map(emp => ({
+        const employeesFromReports: Employee[] = reportsData.employees.map((emp: any) => ({
           id: emp.id,
+          first_name: emp.full_name?.split(' ')[0] || '',
+          last_name: emp.full_name?.split(' ').slice(1).join(' ') || '',
           full_name: emp.full_name || "Noma'lum",
           email: emp.email || "",
           role: emp.role || "unknown",
           role_display: emp.role_display || "Noma'lum",
           professionality: null,
           is_active: true,
+          created_at: '',
+          updated_at: '',
         }))
         
         // Merge with existing allEmployees, preferring reports data
@@ -949,7 +957,7 @@ export default function Reports() {
                     tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                     width={50}
                   />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value: number) => [`${formatPrice(value)}`, "Daromad"]} />} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value: any) => [`${formatPrice(Number(value))}`, "Daromad"]} />} />
                   <Line 
                     type="monotone" 
                     dataKey="revenue" 
@@ -989,7 +997,7 @@ export default function Reports() {
                     tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                     width={50}
                   />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value: number) => [`${formatPrice(value)}`, "Daromad"]} />} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value: any) => [`${formatPrice(Number(value))}`, "Daromad"]} />} />
                   <Bar dataKey="daromad" fill="var(--color-daromad)" radius={4} />
                 </BarChart>
               </ChartContainer>
@@ -1024,7 +1032,7 @@ export default function Reports() {
                       tick={{ fontSize: 9 }}
                       width={120}
                     />
-                    <ChartTooltip content={<ChartTooltipContent formatter={(value: number) => [`${formatPrice(value)}`, "Daromad"]} />} />
+                    <ChartTooltip content={<ChartTooltipContent formatter={(value: any) => [`${formatPrice(Number(value))}`, "Daromad"]} />} />
                     <Bar dataKey="earnings" fill="var(--color-earnings)" radius={4} />
                   </BarChart>
                 </ChartContainer>

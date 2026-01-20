@@ -22,7 +22,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -88,8 +87,7 @@ export function AttendanceFormDialog({
   const loadGroupStudents = async (groupId: number) => {
     try {
       setLoadingStudents(true)
-      const groupResponse = await api.getGroup(groupId)
-      const group = groupResponse.data
+      await api.getGroup(groupId)
 
       // Get all students and filter by group
       const studentsResponse = await api.getStudents()

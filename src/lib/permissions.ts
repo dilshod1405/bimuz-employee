@@ -107,7 +107,7 @@ export function canDeleteEmployee(
  */
 export function canViewEmployee(
   userRole: string | undefined | null,
-  targetEmployee: Employee
+  _targetEmployee: Employee
 ): boolean {
   const userLevel = getRoleLevel(userRole)
 

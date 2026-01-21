@@ -19,10 +19,10 @@ Admin dashboard for BIMUZ. Implements UI/UX + client-side permission gating, whi
 
 ```mermaid
 flowchart LR
-  U[Employee] --> UI[bimuz-dashboard]
-  UI -->|JWT| API[bimuz-api]
-  API --> DB[(PostgreSQL)]
-  API --> MC[Multicard]
+  U["Employee"] --> UI["bimuz-dashboard"];
+  UI -->|JWT| API["bimuz-api"];
+  API --> DB[("PostgreSQL")];
+  API --> MC["Multicard"];
 ```
 
 ## Role hierarchy & strategy
@@ -90,9 +90,9 @@ Dashboard Payments page shows **student invoices**.
 
 ```mermaid
 flowchart TB
-  A[All roles] --> R[Read attendances]
-  M[Mentor] --> C1[Create for own groups]
-  ADM[Admin/Director/Dev] --> C2[Create for any mentor]
+  A["All roles"] --> R["Read attendances"];
+  M["Mentor"] --> C1["Create for own groups"];
+  ADM["Admin/Director/Dev"] --> C2["Create for any mentor"];
 ```
 
 ## Tech stack

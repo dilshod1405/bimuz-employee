@@ -1,88 +1,101 @@
-# 🎯 BIMUZ Dashboard
+# BIMUZ Dashboard (React)
 
-<div align="center">
+Admin dashboard for BIMUZ. Implements UI/UX + client-side permission gating, while **all security-critical decisions are enforced by `bimuz-api`**.
 
-![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+## Table of contents
 
-Modern, responsive admin dashboard for BIMUZ education management system.
+- [Overview](#overview)
+- [Role hierarchy & strategy](#role-hierarchy--strategy)
+- [Feature modules](#feature-modules)
+- [Reports (Hisobotlar)](#reports-hisobotlar)
+- [Payments (To‘lovlar)](#payments-tolovlar)
+- [Attendances (Davomatlar)](#attendances-davomatlar)
+- [Tech stack](#tech-stack)
+- [Local development](#local-development)
+- [Build & deployment](#build--deployment)
+- [Project structure](#project-structure)
 
-[Features](#-features) • [Installation](#-installation) • [Development](#-development) • [Deployment](#-deployment)
+## Overview
 
-</div>
+```mermaid
+flowchart LR
+  U[Employee] --> UI[bimuz-dashboard]
+  UI -->|JWT| API[bimuz-api]
+  API --> DB[(PostgreSQL)]
+  API --> MC[Multicard]
+```
 
----
+## Role hierarchy & strategy
 
-## 📋 Table of Contents
+### Hierarchy
+**Dasturchi > Direktor > Administrator > Buxgalter > (Mentor / Sotuv agenti / Assistent)**
 
-- [About](#-about)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Development](#-development)
-- [Building](#-building)
-- [Deployment](#-deployment)
-- [Project Structure](#-project-structure)
-- [Configuration](#-configuration)
+### Strategy used in dashboard
+- **All authenticated roles can open all pages (READ)** unless explicitly hidden (e.g. Reports page is intentionally hidden for some roles).
+- **Action buttons are gated** using centralized helpers in:
+  - `src/lib/permissions.ts`
+- **Backend is the source of truth**: UI hiding is convenience only.
 
----
+### Employees page (Xodimlar) – CRUD rules
+- **Dasturchi**: CRUD everyone
+- **Direktor**: CRUD everyone **except** Dasturchi (read-only for Dasturchi)
+- **Administrator**: CRUD only roles **below Administrator**
+- **Buxgalter/Mentor/Sotuv agenti/Assistent**: read-only
 
-## 🎨 About
+## Feature modules
 
-BIMUZ Dashboard is a modern, feature-rich admin panel built with React and TypeScript. It provides a comprehensive interface for managing employees, students, groups, and payments in the BIMUZ education management system.
+### Employees (Xodimlar)
+- Role hierarchy based CRUD UI
+- Centralized role assignment restrictions (only assign roles you’re allowed to)
 
-### Key Highlights
+### Students (Talabalar)
+- CRUD operations with search/filter/pagination
 
-- ✨ **Modern UI/UX** - Beautiful, responsive design with shadcn/ui components
-- 🔐 **Authentication** - JWT-based authentication with automatic token refresh
-- 📊 **Real-time Data** - Interactive tables with search, filter, and pagination
-- 🎯 **Role-based Access** - Different permissions for different user roles
-- 📱 **Mobile Responsive** - Works seamlessly on all devices
-- 🚀 **Fast Performance** - Optimized with Vite and code splitting
+### Groups (Guruhlar)
+- CRUD + mentor assignment + planned groups visibility
 
----
+## Reports (Hisobotlar)
 
-## ✨ Features
+### Visibility
+Reports page is visible only to:
+- `dasturchi`, `direktor`, `administrator`, `buxgalter`
 
-### 🏢 Employee Management
-- View, create, edit, and delete employees
-- Role-based filtering (Developer, Director, Administrator, Mentor, Sales Agent)
-- Search functionality with real-time filtering
-- Avatar upload and profile management
+### Salary/Payments operations
+- Salary update/delete and “paid” marking is restricted to:
+  - **Direktor** and **Buxgalter**
 
-### 👨‍🎓 Student Management
-- Complete student CRUD operations
-- Status management (active/inactive)
-- Source tracking (Instagram, Website, etc.)
-- Contract management and verification
+### Core business logic (done on backend)
+- Mentor split rule:
+  - ≤ 6 students: Director 45% / Mentor 55%
+  - > 6 students: Director 40% / Mentor 60%
+- Director remaining = director share − total non-mentor salaries (never negative)
 
-### 📚 Group Management
-- Group creation and management
-- Mentor assignment
-- Starting date tracking with countdown
-- Speciality and schedule management
-- Seat availability tracking
+### Excel export
+- Available only for **Buxgalter** (document/accounting workflow).
 
-### 💰 Payment Management
-- Invoice viewing and filtering
-- Status-based filtering (Created, Pending, Paid, Overdue, Cancelled)
-- Search by name, phone, group, or invoice ID
-- Detailed invoice view with all information
-- Payment history tracking
+## Payments (To‘lovlar)
 
-### 🔐 Authentication & Authorization
-- Secure login system
-- JWT token management
-- Automatic token refresh
-- Role-based access control
-- Session management
+Dashboard Payments page shows **student invoices**.
+- If invoice is unpaid → show **To‘lov havolasi**
+- If invoice is paid → show **Kvitansiya havolasi**
+- No “mark as paid” checkbox in dashboard for student invoices (analytics integrity).
 
----
+## Attendances (Davomatlar)
 
-## 🛠 Tech Stack
+- Everyone can read attendances.
+- Attendance creation rules:
+  - Mentor creates for own groups
+  - Dasturchi/Direktor/Administrator can create for any mentor (mentor selection + group list)
+  - Planned groups appear but are disabled for creation
+
+```mermaid
+flowchart TB
+  A[All roles] --> R[Read attendances]
+  M[Mentor] --> C1[Create for own groups]
+  ADM[Admin/Director/Dev] --> C2[Create for any mentor]
+```
+
+## Tech stack
 
 ### Core
 - **[React 19.2](https://react.dev/)** - UI library
@@ -113,7 +126,7 @@ BIMUZ Dashboard is a modern, feature-rich admin panel built with React and TypeS
 
 ---
 
-## 📦 Prerequisites
+## Local development
 
 Before you begin, ensure you have the following installed:
 
@@ -124,7 +137,7 @@ Before you begin, ensure you have the following installed:
 
 ---
 
-## 🚀 Installation
+### Install
 
 ### Clone the Repository
 
@@ -146,7 +159,7 @@ npm install
 yarn install
 ```
 
-### Environment Variables
+### Environment variables
 
 Create a `.env` file in the root directory (optional for development):
 
@@ -158,7 +171,7 @@ For production, the API base URL should be set during the Docker build process.
 
 ---
 
-## 💻 Development
+## Build & deployment
 
 ### Start Development Server
 
@@ -216,7 +229,7 @@ dist/
 
 ---
 
-## 🐳 Deployment
+### Docker
 
 ### Docker Deployment
 
@@ -290,7 +303,7 @@ Set the following in GitLab CI/CD Variables:
 
 ---
 
-## 📁 Project Structure
+## Project structure
 
 ```
 bimuz-dashboard/
@@ -333,7 +346,7 @@ bimuz-dashboard/
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### API Configuration
 
@@ -365,34 +378,7 @@ The dashboard uses JWT-based authentication:
 
 ---
 
-## 🔧 Troubleshooting
+## Notes
 
-### Common Issues
-
-#### Build Fails
-- Ensure Node.js >= 20.x is installed
-- Clear node_modules and reinstall: `rm -rf node_modules pnpm-lock.yaml && pnpm install`
-
-#### Docker Build Fails
-- Check Docker version: `docker --version`
-- Ensure Dockerfile syntax is correct
-- Verify build arguments are set correctly
-
-#### API Connection Issues
-- Verify `VITE_API_BASE_URL` is set correctly
-- Check CORS settings on the API server
-- Ensure API server is running and accessible
-
-#### Port Already in Use
-- Change the port in `docker-compose.yml`
-- Or stop the process using the port: `lsof -ti:3000 | xargs kill`
-
----
-
-<div align="center">
-
-**Built with ❤️ by the BIMUZ Team**
-
-[⬆ Back to Top](#-bimuz-dashboard)
-
-</div>
+- **Internal navigation** uses `react-router-dom` `Link` components (no full page reload).
+- UI permissions are centralized in `src/lib/permissions.ts`, but backend must still validate everything.
